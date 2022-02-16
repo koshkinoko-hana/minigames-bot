@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 from telegram.ext import CallbackContext, Updater, CommandHandler, MessageHandler, Filters, BaseFilter
 
-from sapper import init_sapper, answer, clear
+from sapper import init_sapper, answer, clear, get_rating
 import telegram
 from telegram import Update, ForceReply
 
@@ -13,7 +13,7 @@ bot = telegram.Bot(token)
 def start(update: Update, context: CallbackContext) -> None:
     user = update.effective_user
     update.message.reply_html(
-        'Привет! Чтобы начать игру, введи /game. Чтобы узнать правила, введи /rules'
+        'Привет! Чтобы начать игру, введи /game. Чтобы узнать правила, введи /rules. Рейтинг - /rating'
     )
 
 
@@ -31,14 +31,21 @@ def rules(update: Update, context: CallbackContext) -> None:
 def game(update: Update, context: CallbackContext) -> None:
     user = update.effective_user
     update.message.reply_html(
-        init_sapper(user.id)
+        init_sapper(user)
     )
 
 
 def process_answer(update: Update, context: CallbackContext) -> None:
     user = update.effective_user
+    print(user)
     update.message.reply_html(
         answer(user.id, update.message.text)
+    )
+
+
+def rating(update: Update, context: CallbackContext) -> None:
+    update.message.reply_html(
+        get_rating()
     )
 
 
@@ -62,6 +69,7 @@ def main() -> None:
     dispatcher.add_handler(CommandHandler("game", game))
     dispatcher.add_handler(CommandHandler("clear", clear_process))
     dispatcher.add_handler(CommandHandler("rules", rules))
+    dispatcher.add_handler(CommandHandler("rating", rating))
     dispatcher.add_handler(MessageHandler(Filters.regex('([a-eA-E][1-5][, ]*){1,10}'), process_answer))
     dispatcher.add_handler(MessageHandler(Filters.all, start))
 

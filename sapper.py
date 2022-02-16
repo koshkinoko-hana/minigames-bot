@@ -26,7 +26,8 @@ def generate():
     return res
 
 
-def init_sapper(user_id):
+def init_sapper(user):
+    user_id = user.id
     new_game = generate()
     games.get(user_id)
     total = 0
@@ -35,6 +36,9 @@ def init_sapper(user_id):
     games.update({
         user_id: {
             'game': new_game,
+            'username': user.username,
+            'first_name': user.first_name,
+            'last_name': user.last_name,
             'touched_count': 0,
             'total': total,
             'answer': copy.deepcopy(empty_answer)
@@ -105,3 +109,19 @@ def answer(user_id, ans):
     if game['touched_count'] == 15:
         after += 'Чтобы начать новую игру, введите /game . Чтобы обнулить достижения, введите /clear .'
     return before + res_field + after
+
+
+def get_rating():
+    res = 'Топ 10 пользователей:\n'
+    i = 0
+    for item in games.values():
+        res += '{0} {1} (@{2}): {3} очков\n'.format(
+            item['first_name'],
+            item['last_name'],
+            item['username'],
+            str(item['total'])
+        )
+        i += 1
+        if i == 10:
+            return res
+    return res
